@@ -1,8 +1,7 @@
 # Proyect_Icarus
-===================================================================================================================================================================================
+
 Página Web de xxxxxxx. Fundada para recaudar fondos para el proyecto principal
 Este txt servira para explciar brevemente el proyecto Icarus y sus avances, ademas de una guía para poder entender este.
-==================================================================================================================================================================================
 
 PROYECTO_ICARUS
 
