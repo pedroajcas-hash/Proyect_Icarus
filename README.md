@@ -3,6 +3,10 @@
 Página Web de xxxxxxx. Fundada para recaudar fondos para el proyecto principal
 Este txt servira para explciar brevemente el proyecto Icarus y sus avances, ademas de una guía para poder entender este.
 
+## Documentación
+
+- **[Cuenta PayPal temporal en Sociedad Civil (documento completo)](docs/Cuenta-PayPal-Temporal-Sociedad-Civil.html)** — portada, índice con hipervínculos, procedimiento NIF provisional, justificación de ingresos y riesgos legales/financieros.
+
 PROYECTO_ICARUS
 
 La estructura de partición es la misma de siempre, pero aun así explicaré brevemente que hace lo creado hasta ahora:
