@@ -6,11 +6,13 @@ from __future__ import annotations
 from pathlib import Path
 
 from pypdf import PdfReader, PdfWriter
+from pypdf.annotations import Link
 from reportlab.lib.colors import HexColor, white, black
 from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm, mm
+from reportlab.pdfgen import canvas as pdfcanvas
 from reportlab.platypus import (
     BaseDocTemplate,
     Frame,
@@ -62,6 +64,14 @@ SOURCES = [
             (10, "FORTRAN, COBOL y memoria de ferrita"),
             (11, "Batch processing y tiranía de los números"),
         ],
+        "tricks": [
+            "E-P-A-S en cada máquina: Entrada → Procesamiento → Almacenamiento → Salida.",
+            "Válvula = bombilla inteligente (calor y averías). Transistor = interruptor pequeño, frío y fiable.",
+            "Von Neumann = una sola memoria para datos e instrucciones. Harvard = dos memorias separadas.",
+            "ENIAC se programaba con cables; Von Neumann lo solucionó guardando el programa en memoria.",
+            "Bug: Grace Hopper encontró una polilla real provocando un fallo (origen popular del término).",
+            "Tiranía de los números: demasiadas soldaduras/cables → solución = integrar todo en un chip.",
+        ],
     },
     {
         "key": "gen36",
@@ -87,6 +97,14 @@ SOURCES = [
             (14, "CPU, GPU, NPU, IoT y nube"),
             (15, "Glosario"),
         ],
+        "tricks": [
+            "Frase de generaciones: Chip → MicroCPU → Internet/GUI → IA/Nube.",
+            "Cinta = acceso secuencial (recorrer todo). Disco = acceso aleatorio (ir directo al dato).",
+            "System/360 = misma familia, mismo software, distintos tamaños/precios.",
+            "Intel 4004 (1971) = primer microprocesador → nace la 4ª generación.",
+            "Trinidad 1977: Apple II + TRS-80 + Commodore PET.",
+            "CPU = general, GPU = paralelo/gráficos, NPU = inteligencia artificial.",
+        ],
     },
     {
         "key": "hw",
@@ -110,6 +128,14 @@ SOURCES = [
             (15, "Tarjetas de sonido y de red"),
             (16, "Caja y fuente de alimentación"),
             (18, "Periféricos: monitor, teclado y ratón"),
+        ],
+        "tricks": [
+            "Oficina mental: CPU=jefe, RAM=mesa, disco=archivador, placa=suelo, GPU=artista, fuente=luz.",
+            "Caché: L1 más rápida y pequeña; L3 más grande y algo más lenta.",
+            "RAM = volátil (se borra al apagar). Disco/SSD = no volátil (se conserva).",
+            "DDR distintas generaciones no son intercambiables (cambia la muesca).",
+            "Audio: verde=auriculares, rosa=micrófono, azul=entrada de línea.",
+            "Fuente: ATX 24 pines (placa), EPS (CPU), PCIe (GPU), SATA (discos).",
         ],
     },
     {
@@ -136,6 +162,14 @@ SOURCES = [
             (10, "RAM, placa base y almacenamiento"),
             (12, "GPU, sonido, red, caja y fuente"),
             (13, "Periféricos básicos"),
+        ],
+        "tricks": [
+            "Valor = dígito × base^posición (posiciones desde la derecha, empezando en 0).",
+            "Decimal → binario: divide entre 2 y lee restos de abajo hacia arriba.",
+            "Decimal → hex: divide entre 16; restos 10–15 = A–F.",
+            "1 cifra hex = 4 bits. 1 cifra octal = 3 bits. Agrupa desde la derecha.",
+            "Potencias de 2 hasta 256: 1, 2, 4, 8, 16, 32, 64, 128, 256.",
+            "Orden de estudio: generaciones → E-P-A-S → hardware → numeración.",
         ],
     },
 ]
@@ -403,11 +437,12 @@ def build_section_cover_flow(src):
 
 
 def build_section_index(src):
+    """Legacy flowable index (unused by final merge; kept for compatibility)."""
     s = []
     s.append(Paragraph(f"Índice — {src['title']}", STYLES["H1"]))
     s.append(
         Paragraph(
-            "Números de página referidos al PDF original (no a este documento unificado).",
+            "Haz clic en cada título para ir a esa página. Tras el índice verás el apartado Trucos.",
             STYLES["SmallCenter"],
         )
     )
@@ -437,6 +472,10 @@ def build_section_index(src):
         )
     )
     s.append(table)
+    s.append(Spacer(1, 14))
+    s.append(Paragraph("Trucos", STYLES["H2"]))
+    for tip in src.get("tricks", []):
+        s.append(Paragraph(f"• {tip}", STYLES["BulletBody"]))
     return s
 
 
@@ -1093,33 +1132,256 @@ def _wrap(text: str, width: int):
     return lines or [text]
 
 
-def make_index_pdf(path: Path, src: dict):
-    """Standalone index pages for a source PDF."""
-    doc = BaseDocTemplate(
-        str(path),
-        pagesize=A4,
-        leftMargin=2 * cm,
-        rightMargin=2 * cm,
-        topMargin=2 * cm,
-        bottomMargin=2 * cm,
+def _draw_page_chrome(c: pdfcanvas.Canvas, page_label: str):
+    c.setStrokeColor(LINE)
+    c.setLineWidth(0.5)
+    c.line(2 * cm, A4[1] - 1.4 * cm, A4[0] - 2 * cm, A4[1] - 1.4 * cm)
+    c.setFont("Helvetica", 8)
+    c.setFillColor(HexColor("#666666"))
+    c.drawString(2 * cm, A4[1] - 1.2 * cm, "Apuntes unificados de Computación")
+    c.drawRightString(A4[0] - 2 * cm, A4[1] - 1.2 * cm, "Índice con hipervínculos")
+    c.line(2 * cm, 1.4 * cm, A4[0] - 2 * cm, 1.4 * cm)
+    c.drawCentredString(A4[0] / 2, 0.9 * cm, page_label)
+
+
+def make_index_pdf(path: Path, src: dict) -> list[dict]:
+    """
+    Dibuja índice + trucos y devuelve metadatos de enlaces:
+    {local_page, rect=(x1,y1,x2,y2), original_page}
+    Las coordenadas están en puntos PDF (origen abajo-izquierda).
+    """
+    c = pdfcanvas.Canvas(str(path), pagesize=A4)
+    links: list[dict] = []
+    left = 2 * cm
+    right = A4[0] - 2 * cm
+    top = A4[1] - 2.2 * cm
+    bottom = 2.2 * cm
+    local_page = 0
+
+    def new_page():
+        nonlocal local_page, y
+        if local_page > 0:
+            c.showPage()
+        local_page += 1
+        _draw_page_chrome(c, f"Página {local_page}")
+        y = top
+
+    new_page()
+
+    # Título
+    c.setFillColor(NAVY)
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(left, y, f"Índice — {src['title']}")
+    y -= 18
+    c.setFillColor(HexColor("#444444"))
+    c.setFont("Helvetica", 9)
+    c.drawString(left, y, "Haz clic en cada título (en azul) para saltar a esa página del documento.")
+    y -= 16
+
+    # Cabecera tabla
+    row_h = 18
+    col_page_w = 1.8 * cm
+    c.setFillColor(LIGHT)
+    c.rect(left, y - row_h + 4, right - left, row_h, fill=1, stroke=0)
+    c.setStrokeColor(LINE)
+    c.rect(left, y - row_h + 4, right - left, row_h, fill=0, stroke=1)
+    c.setFillColor(INK)
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(left + 6, y - 10, "Pág.")
+    c.drawString(left + col_page_w + 6, y - 10, "Contenido (clic para ir)")
+    y -= row_h
+
+    link_color = HexColor("#0B5CAB")
+    for i, (orig_page, title) in enumerate(src["index"]):
+        if y - row_h < bottom + 2 * cm:
+            new_page()
+            c.setFillColor(NAVY)
+            c.setFont("Helvetica-Bold", 12)
+            c.drawString(left, y, f"Índice — {src['title']} (cont.)")
+            y -= 22
+
+        # Fondo alterno
+        if i % 2 == 0:
+            c.setFillColor(HexColor("#FAFAFA"))
+            c.rect(left, y - row_h + 4, right - left, row_h, fill=1, stroke=0)
+        c.setStrokeColor(LINE)
+        c.setLineWidth(0.4)
+        c.rect(left, y - row_h + 4, right - left, row_h, fill=0, stroke=1)
+
+        c.setFillColor(INK)
+        c.setFont("Helvetica", 10)
+        c.drawString(left + 6, y - 10, str(orig_page))
+
+        # Título como hipervínculo visual
+        c.setFillColor(link_color)
+        c.setFont("Helvetica", 10)
+        # Truncar si es muy largo
+        display = title if len(title) <= 78 else title[:75] + "…"
+        text_x = left + col_page_w + 6
+        c.drawString(text_x, y - 10, display)
+        text_w = c.stringWidth(display, "Helvetica", 10)
+        # Subrayado
+        c.setStrokeColor(link_color)
+        c.setLineWidth(0.6)
+        c.line(text_x, y - 12, text_x + text_w, y - 12)
+
+        # Rectángulo clicable (toda la fila)
+        rect = (left, y - row_h + 4, right, y + 4)
+        links.append(
+            {
+                "local_page": local_page - 1,  # 0-based within this index PDF
+                "rect": rect,
+                "original_page": orig_page,
+            }
+        )
+        y -= row_h
+
+    # ---- Apartado Trucos ----
+    tricks = src.get("tricks", [])
+    needed = 36 + len(tricks) * 28
+    if y - needed < bottom:
+        new_page()
+
+    y -= 14
+    c.setFillColor(TEAL)
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(left, y, "Trucos")
+    y -= 8
+    c.setStrokeColor(ACCENT)
+    c.setLineWidth(2)
+    c.line(left, y, left + 3.5 * cm, y)
+    y -= 16
+
+    c.setFillColor(INK)
+    for tip in tricks:
+        if y < bottom + 1.2 * cm:
+            new_page()
+            c.setFillColor(TEAL)
+            c.setFont("Helvetica-Bold", 12)
+            c.drawString(left, y, "Trucos (cont.)")
+            y -= 18
+            c.setFillColor(INK)
+
+        # Caja suave
+        wrapped = _wrap(tip, 92)
+        box_h = 8 + len(wrapped) * 12
+        c.setFillColor(LIGHT)
+        c.roundRect(left, y - box_h + 4, right - left, box_h, 4, fill=1, stroke=0)
+        c.setFillColor(NAVY)
+        c.setFont("Helvetica-Bold", 9)
+        c.drawString(left + 8, y - 8, "TRUCO")
+        c.setFillColor(INK)
+        c.setFont("Helvetica", 9)
+        ty = y - 8
+        for line in wrapped:
+            c.drawString(left + 52, ty, line)
+            ty -= 12
+        y -= box_h + 6
+
+    c.save()
+    return links
+
+
+def make_master_index_pdf(path: Path) -> list[dict]:
+    """Índice general con enlaces a la portada de cada sección y a la guía."""
+    c = pdfcanvas.Canvas(str(path), pagesize=A4)
+    _draw_page_chrome(c, "Página 1")
+    left = 2 * cm
+    right = A4[0] - 2 * cm
+    y = A4[1] - 2.2 * cm
+    links = []
+
+    c.setFillColor(NAVY)
+    c.setFont("Helvetica-Bold", 18)
+    c.drawString(left, y, "Índice general")
+    y -= 22
+    c.setFillColor(HexColor("#444444"))
+    c.setFont("Helvetica", 10)
+    for line in _wrap(
+        "Este documento une los 4 apuntes originales y añade una guía final. "
+        "Haz clic en cada apartado (azul) para saltar a su portada.",
+        95,
+    ):
+        c.drawString(left, y, line)
+        y -= 13
+
+    y -= 10
+    c.setFillColor(TEAL)
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(left, y, "PARTE A — Documentos originales")
+    y -= 18
+
+    link_color = HexColor("#0B5CAB")
+    items = [
+        ("section", i, f"{i+1}. {src['title']} — portada, índice, trucos y PDF original")
+        for i, src in enumerate(SOURCES)
+    ]
+    for kind, idx, label in items:
+        c.setFillColor(link_color)
+        c.setFont("Helvetica", 11)
+        c.drawString(left + 8, y, label)
+        tw = c.stringWidth(label, "Helvetica", 11)
+        c.setStrokeColor(link_color)
+        c.line(left + 8, y - 2, left + 8 + tw, y - 2)
+        links.append(
+            {
+                "local_page": 0,
+                "rect": (left + 6, y - 4, right, y + 12),
+                "target_kind": "section",
+                "section_index": idx,
+            }
+        )
+        y -= 20
+
+    y -= 8
+    c.setFillColor(TEAL)
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(left, y, "PARTE B — Guía para tontos")
+    y -= 18
+    guide_label = "Guía completa: trucos, explicación simple y ejemplos (decimal/binario/hex)"
+    c.setFillColor(link_color)
+    c.setFont("Helvetica", 11)
+    c.drawString(left + 8, y, guide_label)
+    tw = c.stringWidth(guide_label, "Helvetica", 11)
+    c.setStrokeColor(link_color)
+    c.line(left + 8, y - 2, left + 8 + tw, y - 2)
+    links.append(
+        {
+            "local_page": 0,
+            "rect": (left + 6, y - 4, right, y + 12),
+            "target_kind": "guide",
+        }
     )
-    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="normal")
-    doc.addPageTemplates([PageTemplate(id="content", frames=[frame], onPage=draw_header_footer)])
-    story = build_section_index(src)
-    doc.build(story)
+    y -= 28
+
+    c.setFillColor(NAVY)
+    c.setFont("Helvetica-Oblique", 9)
+    tip = (
+        "TRUCO GENERAL: estudia generaciones → flujo E-P-A-S → hardware → numeración."
+    )
+    c.setFillColor(LIGHT)
+    c.roundRect(left, y - 28, right - left, 34, 4, fill=1, stroke=0)
+    c.setFillColor(NAVY)
+    c.setFont("Helvetica", 9)
+    for i, line in enumerate(_wrap(tip, 95)):
+        c.drawString(left + 10, y - 8 - i * 12, line)
+
+    c.save()
+    return links
 
 
-def append_pdf(writer: PdfWriter, path: Path):
+def append_pdf(writer: PdfWriter, path: Path) -> int:
+    """Append pages and return how many were added."""
     reader = PdfReader(str(path))
     for page in reader.pages:
         writer.add_page(page)
+    return len(reader.pages)
 
 
 def main():
     tmp = OUT_DIR / "_tmp_parts"
     tmp.mkdir(exist_ok=True)
 
-    # Covers
     main_cover = tmp / "main_cover.pdf"
     guide_cover = tmp / "guide_cover.pdf"
     make_main_cover(main_cover)
@@ -1127,6 +1389,7 @@ def main():
 
     section_covers = {}
     section_indexes = {}
+    section_index_links = {}
     for src in SOURCES:
         cpath = tmp / f"cover_{src['key']}.pdf"
         ipath = tmp / f"index_{src['key']}.pdf"
@@ -1137,50 +1400,12 @@ def main():
             src["color"],
             "DOCUMENTO ORIGINAL",
         )
-        make_index_pdf(ipath, src)
+        section_index_links[src["key"]] = make_index_pdf(ipath, src)
         section_covers[src["key"]] = cpath
         section_indexes[src["key"]] = ipath
 
-    # Study guide body (without the duplicated section covers/indexes)
-    guide_body = tmp / "guide_body.pdf"
-    doc = BaseDocTemplate(
-        str(guide_body),
-        pagesize=A4,
-        leftMargin=2 * cm,
-        rightMargin=2 * cm,
-        topMargin=2.2 * cm,
-        bottomMargin=2 * cm,
-    )
-    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="normal")
-    doc.addPageTemplates([PageTemplate(id="content", frames=[frame], onPage=draw_header_footer)])
-    story = []
-    story.extend(build_master_index())
-    story.append(PageBreak())
-    story.extend(build_study_guide())
-    doc.build(story)
-
-    # Merge final
-    writer = PdfWriter()
-    append_pdf(writer, main_cover)
-    # master index is first pages of guide_body — we'll split: put index after cover,
-    # originals in middle, then guide cover + rest.
-
-    guide_reader = PdfReader(str(guide_body))
-    # Page 0 of guide_body is master index (may be 1 page). Detect by building: master index is short.
-    # We put: main cover, master index pages until "PARTE B", then sections, then guide.
-    # Simpler approach: rebuild two small PDFs.
     master_index_pdf = tmp / "master_index.pdf"
-    doc2 = BaseDocTemplate(
-        str(master_index_pdf),
-        pagesize=A4,
-        leftMargin=2 * cm,
-        rightMargin=2 * cm,
-        topMargin=2.2 * cm,
-        bottomMargin=2 * cm,
-    )
-    frame2 = Frame(doc2.leftMargin, doc2.bottomMargin, doc2.width, doc2.height, id="normal")
-    doc2.addPageTemplates([PageTemplate(id="content", frames=[frame2], onPage=draw_header_footer)])
-    doc2.build(build_master_index())
+    master_links = make_master_index_pdf(master_index_pdf)
 
     guide_only = tmp / "guide_only.pdf"
     doc3 = BaseDocTemplate(
@@ -1196,16 +1421,82 @@ def main():
     doc3.build(build_study_guide())
 
     writer = PdfWriter()
-    append_pdf(writer, main_cover)
-    append_pdf(writer, master_index_pdf)
+    # Track absolute page offsets (0-based)
+    cursor = 0
+    cursor += append_pdf(writer, main_cover)  # 0
+    master_index_start = cursor
+    cursor += append_pdf(writer, master_index_pdf)
 
+    section_meta = []
     for src in SOURCES:
-        append_pdf(writer, section_covers[src["key"]])
-        append_pdf(writer, section_indexes[src["key"]])
-        append_pdf(writer, src["file"])
+        cover_start = cursor
+        cursor += append_pdf(writer, section_covers[src["key"]])
+        index_start = cursor
+        n_index = append_pdf(writer, section_indexes[src["key"]])
+        cursor += n_index
+        content_start = cursor
+        n_content = append_pdf(writer, src["file"])
+        cursor += n_content
+        section_meta.append(
+            {
+                "key": src["key"],
+                "cover_start": cover_start,
+                "index_start": index_start,
+                "content_start": content_start,
+                "n_content": n_content,
+            }
+        )
 
-    append_pdf(writer, guide_cover)
-    append_pdf(writer, guide_only)
+    guide_cover_start = cursor
+    cursor += append_pdf(writer, guide_cover)
+    guide_body_start = cursor
+    cursor += append_pdf(writer, guide_only)
+
+    # ---- Hipervínculos del índice general ----
+    for link in master_links:
+        page_no = master_index_start + link["local_page"]
+        if link["target_kind"] == "section":
+            target = section_meta[link["section_index"]]["cover_start"]
+        else:
+            target = guide_cover_start
+        writer.add_annotation(
+            page_number=page_no,
+            annotation=Link(rect=link["rect"], target_page_index=target),
+        )
+
+    # ---- Hipervínculos de cada índice de sección ----
+    for meta in section_meta:
+        for link in section_index_links[meta["key"]]:
+            page_no = meta["index_start"] + link["local_page"]
+            orig = link["original_page"]
+            # original pages are 1-based
+            target = meta["content_start"] + max(0, min(orig, meta["n_content"]) - 1)
+            writer.add_annotation(
+                page_number=page_no,
+                annotation=Link(rect=link["rect"], target_page_index=target),
+            )
+
+    # Outline / bookmarks for quick navigation
+    try:
+        writer.add_outline_item(title="Portada", page_number=0)
+        writer.add_outline_item(title="Índice general", page_number=master_index_start)
+        for src, meta in zip(SOURCES, section_meta):
+            parent = writer.add_outline_item(
+                title=src["title"], page_number=meta["cover_start"]
+            )
+            writer.add_outline_item(
+                title="Índice + Trucos",
+                page_number=meta["index_start"],
+                parent=parent,
+            )
+            writer.add_outline_item(
+                title="Contenido original",
+                page_number=meta["content_start"],
+                parent=parent,
+            )
+        writer.add_outline_item(title="Guía para tontos", page_number=guide_cover_start)
+    except Exception:
+        pass
 
     writer.add_metadata(
         {
@@ -1217,13 +1508,17 @@ def main():
     with open(OUT_PDF, "wb") as f:
         writer.write(f)
 
-    # cleanup temp textual helpers left around
-    for p in [GUIDE_PDF]:
-        if p.exists():
-            p.unlink()
+    if GUIDE_PDF.exists():
+        GUIDE_PDF.unlink()
 
-    n = len(writer.pages)
-    print(f"OK -> {OUT_PDF} ({n} pages)")
+    print(f"OK -> {OUT_PDF} ({len(writer.pages)} pages)")
+    print(f"  master links: {len(master_links)}")
+    for meta in section_meta:
+        print(
+            f"  {meta['key']}: index@{meta['index_start']}+ "
+            f"content@{meta['content_start']} "
+            f"links={len(section_index_links[meta['key']])}"
+        )
 
 
 if __name__ == "__main__":
