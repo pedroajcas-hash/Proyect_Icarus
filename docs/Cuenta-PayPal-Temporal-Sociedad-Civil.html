@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cuenta PayPal temporal en una Sociedad Civil — hasta el NIF/CIF definitivo</title>
+<style>
+  :root {
+    --ink: #1a1f2e;
+    --muted: #4a5568;
+    --line: #d7dce5;
+    --accent: #0b4f6c;
+    --accent-soft: #e8f2f6;
+    --warn: #7a3e00;
+    --warn-bg: #fff4e5;
+    --bad: #7f1d1d;
+    --bad-bg: #fef2f2;
+    --ok: #14532d;
+    --ok-bg: #ecfdf3;
+    --paper: #fafbfc;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    background: #e9edf2;
+    line-height: 1.65;
+    font-size: 16px;
+  }
+  .page {
+    max-width: 920px;
+    margin: 0 auto;
+    background: #fff;
+    box-shadow: 0 8px 30px rgba(0,0,0,.08);
+  }
+  .cover {
+    min-height: 100vh;
+    padding: 64px 56px;
+    background:
+      linear-gradient(160deg, #0b4f6c 0%, #146a8a 42%, #1d7ea0 100%);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .cover-kicker {
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    font-size: .78rem;
+    opacity: .85;
+  }
+  .cover h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.15;
+    margin: 24px 0 12px;
+    max-width: 14ch;
+    font-weight: 700;
+  }
+  .cover .subtitle {
+    font-size: 1.25rem;
+    opacity: .95;
+    max-width: 34ch;
+    margin-bottom: 40px;
+  }
+  .cover-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 24px;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.2);
+    padding: 20px 24px;
+    border-radius: 12px;
+    max-width: 560px;
+  }
+  .cover-meta dt { font-size: .75rem; opacity: .75; text-transform: uppercase; letter-spacing: .08em; }
+  .cover-meta dd { margin: 2px 0 0; font-weight: 600; }
+  .cover-foot { margin-top: 48px; font-size: .9rem; opacity: .8; }
+  .content { padding: 48px 56px 80px; }
+  .aviso {
+    background: var(--warn-bg);
+    border-left: 4px solid #d97706;
+    color: var(--warn);
+    padding: 14px 16px;
+    margin: 0 0 36px;
+    border-radius: 0 8px 8px 0;
+  }
+  h2 {
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent-soft);
+    padding-bottom: 8px;
+    margin-top: 56px;
+    scroll-margin-top: 24px;
+  }
+  h3 { margin-top: 28px; color: #16324f; scroll-margin-top: 24px; }
+  h4 { margin-top: 18px; color: #243b53; scroll-margin-top: 24px; }
+  a { color: var(--accent); }
+  .toc {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 24px 28px;
+  }
+  .toc h2 { margin-top: 0; border: 0; padding: 0; }
+  .toc ol { padding-left: 22px; }
+  .toc li { margin: 6px 0; }
+  .toc a { text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 24px;
+    font-size: .95rem;
+  }
+  th, td {
+    border: 1px solid var(--line);
+    padding: 10px 12px;
+    vertical-align: top;
+    text-align: left;
+  }
+  th { background: var(--accent-soft); color: var(--accent); }
+  blockquote {
+    margin: 16px 0;
+    padding: 12px 16px;
+    background: var(--paper);
+    border-left: 4px solid var(--accent);
+    color: var(--muted);
+  }
+  .ok, .bad, .warn-box {
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 16px 0;
+  }
+  .ok { background: var(--ok-bg); color: var(--ok); border: 1px solid #bbf7d0; }
+  .bad { background: var(--bad-bg); color: var(--bad); border: 1px solid #fecaca; }
+  .warn-box { background: var(--warn-bg); color: var(--warn); border: 1px solid #fcd34d; }
+  .box {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin: 16px 0;
+    background: var(--paper);
+  }
+  .checklist li { margin: 6px 0; }
+  pre, .code {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 16px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-size: .88rem;
+    line-height: 1.5;
+  }
+  .template {
+    white-space: pre-wrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    background: #f8fafc;
+    border: 1px dashed #94a3b8;
+    padding: 16px;
+    border-radius: 10px;
+    font-size: .9rem;
+  }
+  .back-top { margin-top: 40px; font-size: .9rem; }
+  .footer-doc {
+    margin-top: 64px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: .9rem;
+  }
+  @media print {
+    body { background: #fff; }
+    .page { box-shadow: none; }
+    .cover { min-height: auto; page-break-after: always; }
+    a { text-decoration: none; color: inherit; }
+  }
+  @media (max-width: 700px) {
+    .cover, .content { padding: 28px 20px; }
+    .cover-meta { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- PORTADA -->
+<section class="cover" id="portada">
+  <div>
+    <div class="cover-kicker">Proyecto Icarus · Documento orientativo</div>
+    <h1>Cuenta PayPal temporal en una Sociedad Civil</h1>
+    <p class="subtitle">Hasta la obtención del NIF / CIF definitivo: viabilidad, procedimiento y justificación de ingresos</p>
+    <dl class="cover-meta">
+      <div><dt>Ámbito</dt><dd>España · SC · PayPal · AEAT</dd></div>
+      <div><dt>Versión</dt><dd>2.0 · Noviembre 2026</dd></div>
+      <div><dt>Tipo</dt><dd>Guía fiscal, documental y operativa</dd></div>
+      <div><dt>Estado</dt><dd>Orientativo — no vinculante</dd></div>
+    </dl>
+  </div>
+  <p class="cover-foot">Analiza si una sociedad civil puede crear y usar una cuenta PayPal antes del NIF definitivo, cómo hacerlo correctamente y cómo justificar la cuenta y los ingresos del periodo temporal, incluyendo los problemas legales y financieros asociados.</p>
+</section>
+
+<main class="content">
+
+<div class="aviso">
+  <strong>Aviso importante.</strong> Este documento es una guía práctica de organización y cumplimiento.
+  <strong>No constituye asesoramiento jurídico, fiscal ni financiero vinculante.</strong>
+  Las condiciones de PayPal, la normativa tributaria y los criterios KYC/AML pueden cambiar.
+  Antes de operar con cobros reales, contraste el caso con un asesor fiscal/mercantil y, si procede, con soporte de PayPal Business.
+</div>
+
+<!-- ÍNDICE -->
+<nav class="toc" id="indice">
+  <h2>Índice</h2>
+  <ol>
+    <li><a href="#s1">Resumen ejecutivo y respuesta directa</a></li>
+    <li><a href="#s2">Marco de la Sociedad Civil</a>
+      <ol>
+        <li><a href="#s2-1">Qué es una SC y qué implica</a></li>
+        <li><a href="#s2-2">NIF, CIF y letras identificativas</a></li>
+        <li><a href="#s2-3">Personalidad jurídica y objeto mercantil</a></li>
+        <li><a href="#s2-4">Responsabilidad de los socios</a></li>
+        <li><a href="#s2-5">Obligación de tener NIF antes de cobrar</a></li>
+      </ol>
+    </li>
+    <li><a href="#s3">NIF provisional y NIF definitivo (AEAT)</a>
+      <ol>
+        <li><a href="#s3-1">Cómo se obtiene el NIF provisional</a></li>
+        <li><a href="#s3-2">Documentación del modelo 036</a></li>
+        <li><a href="#s3-3">Paso a NIF definitivo</a></li>
+        <li><a href="#s3-4">Plazos, requerimientos y revocación</a></li>
+      </ol>
+    </li>
+    <li><a href="#s4">Qué exige PayPal en España</a>
+      <ol>
+        <li><a href="#s4-1">Personal vs Business</a></li>
+        <li><a href="#s4-2">Datos y documentos de alta</a></li>
+        <li><a href="#s4-3">Verificación KYC/AML</a></li>
+        <li><a href="#s4-4">¿Acepta NIF provisional?</a></li>
+        <li><a href="#s4-5">Fricción específica de las SC</a></li>
+      </ol>
+    </li>
+    <li><a href="#s5">¿Se puede crear una cuenta PayPal “temporal”?</a>
+      <ol>
+        <li><a href="#s5-1">Respuesta jurídica y práctica</a></li>
+        <li><a href="#s5-2">Escenario A — Recomendado</a></li>
+        <li><a href="#s5-3">Escenario B — Puente de emergencia</a></li>
+        <li><a href="#s5-4">Escenario C — A evitar</a></li>
+      </ol>
+    </li>
+    <li><a href="#s6">Procedimiento completo paso a paso</a>
+      <ol>
+        <li><a href="#s6-0">Fase 0 — Constitución y pacto interno</a></li>
+        <li><a href="#s6-1">Fase 1 — Alta censal y NIF provisional</a></li>
+        <li><a href="#s6-2">Fase 2 — Cuenta bancaria</a></li>
+        <li><a href="#s6-3">Fase 3 — Alta y verificación PayPal Business</a></li>
+        <li><a href="#s6-4">Fase 4 — Operativa con NIF provisional</a></li>
+        <li><a href="#s6-5">Fase 5 — Migración a NIF definitivo</a></li>
+      </ol>
+    </li>
+    <li><a href="#s7">Cómo justificar la cuenta y los ingresos temporales</a>
+      <ol>
+        <li><a href="#s7-1">Frente a PayPal</a></li>
+        <li><a href="#s7-2">Frente a Hacienda</a></li>
+        <li><a href="#s7-3">Frente a socios, donantes y clientes</a></li>
+        <li><a href="#s7-4">Expediente mínimo por ingreso</a></li>
+        <li><a href="#s7-5">Contabilidad, conciliación y ejemplos</a></li>
+        <li><a href="#s7-6">Calificaciones fiscales del puente</a></li>
+      </ol>
+    </li>
+    <li><a href="#s8">Obligaciones fiscales de la SC y de los socios</a></li>
+    <li><a href="#s9">Caso de recaudación de fondos / crowdfunding interno</a></li>
+    <li><a href="#s10">Plantillas y modelos listos para adaptar</a>
+      <ol>
+        <li><a href="#s10-1">Mandato de cobro temporal</a></li>
+        <li><a href="#s10-2">Acta de autorización de cuentas</a></li>
+        <li><a href="#s10-3">Liquidación del socio cobrador</a></li>
+        <li><a href="#s10-4">Libro auxiliar de ingresos PayPal</a></li>
+      </ol>
+    </li>
+    <li><a href="#s11">Cronograma tipo y checklist</a></li>
+    <li><a href="#s12">Preguntas frecuentes</a></li>
+    <li><a href="#s13">Mapa de decisión</a></li>
+    <li><a href="#s14">Problemas legales y financieros que puede ocasionar</a>
+      <ol>
+        <li><a href="#s14-1">Legales y regulatorios</a></li>
+        <li><a href="#s14-2">Fiscales</a></li>
+        <li><a href="#s14-3">Financieros y de tesorería</a></li>
+        <li><a href="#s14-4">Entre socios y frente a terceros</a></li>
+        <li><a href="#s14-5">Escenarios de daño acumulado</a></li>
+        <li><a href="#s14-6">Señales de alarma</a></li>
+        <li><a href="#s14-7">Prevenir vs remediar</a></li>
+      </ol>
+    </li>
+    <li><a href="#s15">Conclusiones finales</a></li>
+    <li><a href="#s16">Referencias</a></li>
+  </ol>
+</nav>
+
+<!-- 1 -->
+<h2 id="s1">1. Resumen ejecutivo y respuesta directa</h2>
+
+<p>La pregunta de partida es:</p>
+<blockquote>
+  ¿Una empresa constituida como <strong>sociedad civil</strong> puede crear una cuenta de PayPal de forma temporal hasta recibir el CIF/NIF definitivo? ¿Cómo se realiza y cómo se justifican esa cuenta y los ingresos temporales?
+</blockquote>
+
+<table>
+  <thead><tr><th>Pregunta</th><th>Respuesta</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>¿Existe una “PayPal temporal” oficial sin CIF/NIF?</td>
+      <td><strong>No.</strong> PayPal no ofrece un producto llamado cuenta temporal. El puente legítimo en España es el <strong>NIF provisional</strong> de la AEAT.</td>
+    </tr>
+    <tr>
+      <td>¿Se puede abrir PayPal Business a nombre de la SC sin ningún NIF?</td>
+      <td><strong>En la práctica, no de forma estable.</strong> Sin identificación fiscal la verificación suele fallar, limitar o bloquear la cuenta.</td>
+    </tr>
+    <tr>
+      <td>¿Se puede cobrar con la PayPal personal de un socio “mientras tanto”?</td>
+      <td><strong>Solo como emergencia documentada</strong>, con mandato interno, trazabilidad total y migración inmediata. Tiene riesgos legales, fiscales y financieros altos.</td>
+    </tr>
+    <tr>
+      <td>¿Cuál es el procedimiento correcto?</td>
+      <td>Contrato SC → modelo 036 y <strong>NIF provisional</strong> <em>antes de cobrar</em> → PayPal Business a nombre de la SC → justificar cada ingreso → completar NIF definitivo y actualizar datos.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="ok">
+  <strong>Conclusión operativa:</strong> no se trata de inventar una cuenta PayPal sin CIF, sino de acelerar el NIF provisional y operar ya como entidad identificada. Cobrar sin NIF choca con la lógica censal de la AEAT.
+</div>
+
+<!-- 2 -->
+<h2 id="s2">2. Marco de la Sociedad Civil</h2>
+
+<h3 id="s2-1">2.1. Qué es una SC y qué implica</h3>
+<p>Una <strong>sociedad civil</strong> es un contrato por el que dos o más personas ponen en común dinero, bienes o industria para un fin común (Código Civil). A efectos prácticos del cobro online:</p>
+<ul>
+  <li>Es una forma frecuente para proyectos pequeños, profesionales o de colaboración.</li>
+  <li>Puede formalizarse en contrato privado o ante notario.</li>
+  <li>Normalmente <strong>no se inscribe en el Registro Mercantil</strong> (salvo supuestos concretos).</li>
+  <li>Necesita <strong>NIF propio</strong> si va a facturar, cobrar, pagar o tener relaciones con trascendencia tributaria.</li>
+</ul>
+
+<h3 id="s2-2">2.2. NIF, CIF y letras identificativas</h3>
+<p>En el lenguaje cotidiano se dice “CIF”. Oficialmente la AEAT usa <strong>NIF</strong> también para entidades. Para muchas sociedades civiles / entidades sin personalidad jurídica el NIF empieza por <strong>E</strong> (u otra letra según tipo). “CIF definitivo” = <strong>NIF definitivo</strong>.</p>
+
+<h3 id="s2-3">2.3. Personalidad jurídica y objeto mercantil</h3>
+<table>
+  <thead><tr><th>Situación</th><th>Tributación habitual del beneficio</th><th>Nota práctica</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>SC sin personalidad jurídica</td>
+      <td>Régimen de <strong>atribución de rentas</strong> (cada socio declara su parte)</td>
+      <td>Muy habitual</td>
+    </tr>
+    <tr>
+      <td>SC con personalidad jurídica y <strong>sin</strong> objeto mercantil</td>
+      <td>Atribución de rentas</td>
+      <td>Analizar el objeto real de la actividad</td>
+    </tr>
+    <tr>
+      <td>SC con personalidad jurídica y <strong>objeto mercantil</strong> (desde 2016)</td>
+      <td>Puede quedar sujeta al <strong>Impuesto sobre Sociedades</strong></td>
+      <td>Requiere análisis profesional del caso</td>
+    </tr>
+  </tbody>
+</table>
+<p>Este documento se centra en el caso más habitual de SC en <strong>atribución de rentas</strong>, sin perjuicio de que el asesor confirme si el objeto es mercantil.</p>
+
+<h3 id="s2-4">2.4. Responsabilidad de los socios</h3>
+<p>En una SC los socios suelen responder de las deudas sociales de forma <strong>personal</strong> y, según pacto y tipo de deuda, con reglas de solidaridad/mancomunidad. Eso significa que un problema de la “cuenta temporal” (bloqueo, devolución, sanción, reclamación de un cliente) puede acabar impactando el patrimonio del socio cobrador o de todos los socios.</p>
+
+<h3 id="s2-5">2.5. Obligación de tener NIF antes de cobrar</h3>
+<p>Según el procedimiento AEAT de asignación de NIF (G324 / modelo 036):</p>
+<blockquote>
+  Las personas jurídicas o entidades sin personalidad jurídica que vayan a ser titulares de relaciones con trascendencia tributaria deberán solicitar un NIF mediante el modelo 036, y hacerlo <strong>antes de</strong> realizar entregas, prestaciones, adquisiciones, <strong>percepción de cobros o abono de pagos</strong>, o contratación de personal.
+</blockquote>
+<p>Esta regla es el eje del documento: cobrar “a nombre de la SC” sin NIF no es un atajo inocuo.</p>
+
+<!-- 3 -->
+<h2 id="s3">3. NIF provisional y NIF definitivo (AEAT)</h2>
+
+<h3 id="s3-1">3.1. Cómo se obtiene el NIF provisional</h3>
+<ol>
+  <li>Preparar el contrato de SC (o documento fehaciente de constitución) firmado por todos los socios.</li>
+  <li>Cumplimentar el <strong>modelo 036</strong> de alta en el Censo de Empresarios, Profesionales y Retenedores.</li>
+  <li>Solicitar la asignación de NIF (provisional si aún falta documentación plena).</li>
+  <li>Presentar la documentación en AEAT (telemática/presencial según el caso y medios de identificación).</li>
+  <li>La AEAT puede asignar el NIF en unos <strong>10 días hábiles</strong> (plazo orientativo del procedimiento).</li>
+</ol>
+<p>También, en determinados supuestos, un notario puede presentar el 036 en el momento de formalizar la constitución.</p>
+
+<h3 id="s3-2">3.2. Documentación del modelo 036</h3>
+<p>Documentación habitual a preparar:</p>
+<ul>
+  <li>Contrato de sociedad civil / escritura / documento de cotitularidad firmado.</li>
+  <li>DNI/NIE de socios y del representante.</li>
+  <li>Domicilio fiscal de la entidad.</li>
+  <li>Descripción de la actividad / epígrafe IAE.</li>
+  <li>Obligaciones tributarias previstas (IVA, retenciones, etc.).</li>
+  <li>Datos de contacto y, si procede, cuenta bancaria para devoluciones AEAT.</li>
+</ul>
+<div class="warn-box">Sin al menos un documento firmado que acredite la voluntad de constituir la entidad o una situación de cotitularidad, la AEAT puede denegar el NIF.</div>
+
+<h3 id="s3-3">3.3. Paso a NIF definitivo</h3>
+<p>Cuando se aporte la documentación pendiente (estatutos/documento equivalente, y certificación de inscripción en registro público si procede), se presenta un <strong>036 de modificación</strong> marcando la casilla de solicitud de <strong>NIF definitivo</strong> (casilla 120 en la guía del 036). Cumplida la obligación, la AEAT asigna el NIF definitivo. En muchos casos el número se mantiene y pasa de provisional a definitivo.</p>
+
+<h3 id="s3-4">3.4. Plazos, requerimientos y revocación</h3>
+<ul>
+  <li>Tras asignar NIF provisional, hay obligación de aportar lo pendiente en el plazo normativo (con frecuencia, <strong>un mes</strong> desde el hecho que complete el expediente).</li>
+  <li>Si no se aporta, la AEAT puede requerir y, si no se atiende, <strong>revocar el NIF provisional</strong>.</li>
+  <li>Un NIF revocado deja sin identificación fiscal válida a la entidad: impacto en facturas, banco y PayPal.</li>
+</ul>
+<p><strong>Implicación PayPal:</strong> el NIF provisional es un identificador fiscal real emitido por organismo oficial. Es el verdadero “modo temporal” legítimo, no una cuenta PayPal especial.</p>
+
+<!-- 4 -->
+<h2 id="s4">4. Qué exige PayPal en España</h2>
+
+<h3 id="s4-1">4.1. Personal vs Business</h3>
+<table>
+  <thead><tr><th>Tipo</th><th>Uso previsto</th><th>¿Sirve para una SC?</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Personal</strong></td>
+      <td>Pagos personales, gastos compartidos, uso no comercial principal</td>
+      <td><strong>No</strong> como cuenta operativa de la SC</td>
+    </tr>
+    <tr>
+      <td><strong>Business</strong></td>
+      <td>Recibir pagos por ventas o donativos; uso comercial</td>
+      <td><strong>Sí</strong> — es la adecuada</td>
+    </tr>
+  </tbody>
+</table>
+<p>Las condiciones de uso de PayPal para España indican, entre otras cosas, que las cuentas Business están dirigidas a personas y organizaciones (constituidas o no) que reciben pagos online por ventas o donativos, y que PayPal puede exigir NIF y documentación; si no se aporta, puede haber limitaciones, retenciones o bloqueos.</p>
+
+<h3 id="s4-2">4.2. Datos y documentos de alta</h3>
+<p>Para crear Business suelen pedirse:</p>
+<ol>
+  <li>Nombre legal completo de la entidad.</li>
+  <li>Correo y contraseña.</li>
+  <li>Número de identificación / registro de empresa (<strong>NIF</strong> en España).</li>
+  <li>Descripción de la actividad y, si existe, URL.</li>
+  <li>Datos del representante (identidad, domicilio, fecha de nacimiento).</li>
+  <li>Cuenta bancaria (idealmente a nombre de la SC).</li>
+</ol>
+
+<h3 id="s4-3">4.3. Verificación KYC/AML</h3>
+<p>Si PayPal no localiza la entidad en bases de datos (muy frecuente en SC nuevas), pedirá documentos. Orientativamente:</p>
+<ul>
+  <li><strong>Identidad del representante:</strong> DNI/NIE o pasaporte.</li>
+  <li><strong>Domicilio:</strong> factura de suministros, extracto bancario, etc.</li>
+  <li><strong>Identidad fiscal de la empresa:</strong> documento AEAT con nombre + NIF (carta de asignación, justificante 036, certificado censal).</li>
+  <li><strong>Existencia:</strong> contrato de SC, escritura, estatutos.</li>
+  <li><strong>Banco:</strong> certificado de titularidad IBAN / extracto.</li>
+</ul>
+<p>Los documentos deben ser legibles, completos, no caducados y con el <strong>mismo nombre legal exacto</strong> que en PayPal.</p>
+
+<h3 id="s4-4">4.4. ¿Acepta NIF provisional?</h3>
+<p>PayPal no publica un producto “NIF provisional OK/KO”. En la práctica:</p>
+<ul>
+  <li>El alta suele aceptar el número.</li>
+  <li>La verificación se supera mejor con documento AEAT donde conste ese NIF.</li>
+  <li>El riesgo aparece si el provisional se revoca o si hay discrepancias de nombre/domicilio.</li>
+</ul>
+
+<h3 id="s4-5">4.5. Fricción específica de las SC</h3>
+<p>El texto estándar de condiciones habla de personas jurídicas inscritas en registro mercantil. Muchas SC no lo están. Mitigación:</p>
+<ul>
+  <li>Contrato SC sólido y firmado.</li>
+  <li>NIF AEAT (provisional o definitivo).</li>
+  <li>Extractos y coherencia total de denominación.</li>
+  <li>Si PayPal rechaza el tipo societario: valorar operación vía socio autónomo documentada o cambio de forma jurídica.</li>
+</ul>
+
+<!-- 5 -->
+<h2 id="s5">5. ¿Se puede crear una cuenta PayPal “temporal”?</h2>
+
+<h3 id="s5-1">5.1. Respuesta jurídica y práctica</h3>
+<p><strong>Sí se puede operar temporalmente</strong>, pero no mediante un producto PayPal especial sin identificación. La temporalidad correcta es:</p>
+<ol>
+  <li>Periodo con <strong>NIF provisional</strong> + PayPal Business de la SC; y/o</li>
+  <li>Periodo ultracorto de emergencia con cobro por un socio, <strong>documentado</strong>, hasta tener NIF.</li>
+</ol>
+
+<h3 id="s5-2">5.2. Escenario A — Recomendado</h3>
+<div class="ok">
+  <strong>NIF provisional → PayPal Business de la SC → cobros justificados → NIF definitivo.</strong>
+</div>
+<ol>
+  <li>Firmar contrato SC.</li>
+  <li>Presentar 036 y obtener NIF provisional.</li>
+  <li>Abrir (si es posible) cuenta bancaria de la SC.</li>
+  <li>Crear PayPal Business con ese NIF.</li>
+  <li>Verificar identidad y entidad.</li>
+  <li>Cobrar, facturar/recibir y contabilizar a nombre de la SC.</li>
+  <li>Completar NIF definitivo y actualizar AEAT/PayPal/banco/web.</li>
+</ol>
+<p><strong>Ventajas:</strong> alineado con AEAT y PayPal; justificación limpia; menos mezcla de patrimonios.<br/>
+<strong>Inconveniente:</strong> hay que esperar días al provisional antes de cobrar.</p>
+
+<h3 id="s5-3">5.3. Escenario B — Puente de emergencia</h3>
+<div class="warn-box">
+  Solo si aún no hay NIF y existe urgencia absoluta de un cobro puntual.
+</div>
+<ol>
+  <li>Un socio cobra con su PayPal (mejor Business si ya es autónomo).</li>
+  <li>Existe <strong>acuerdo escrito</strong>: actúa como mandatario/cobrador fiduciario de la SC.</li>
+  <li>Cada cobro se registra en libro auxiliar de la SC.</li>
+  <li>Se define de antemano la calificación fiscal (ver §7.6).</li>
+  <li>En cuanto exista NIF, se abre PayPal de la SC y se deja de usar la del socio.</li>
+  <li>Se regulariza el saldo con transferencia y liquidación firmada.</li>
+</ol>
+
+<h3 id="s5-4">5.4. Escenario C — A evitar</h3>
+<div class="bad">
+  Cobrar en PayPal personal sin alta, sin facturas, sin contrato SC y “ya se verá”.
+  No es un procedimiento serio: riesgo de bloqueo, sanciones, opacidad y conflictos entre socios.
+</div>
+
+<!-- 6 -->
+<h2 id="s6">6. Procedimiento completo paso a paso</h2>
+
+<h3 id="s6-0">Fase 0 — Constitución y pacto interno</h3>
+<ol>
+  <li>Redactar y firmar el contrato de SC: socios, porcentajes, objeto, domicilio, administración, representación, atribución de resultados.</li>
+  <li>Designar por escrito quién abre y administra banco/PayPal.</li>
+  <li>Reservar nombre legal exacto, nombre comercial y correo de cobros.</li>
+  <li>Definir si se cobrarán ventas, servicios, preventas o donativos (cambia IVA y facturación).</li>
+  <li>Abrir carpeta de expediente digital: societario / AEAT / banco / PayPal / ingresos.</li>
+</ol>
+
+<h3 id="s6-1">Fase 1 — Alta censal y NIF provisional</h3>
+<ol>
+  <li>Cumplimentar modelo 036 (alta + solicitud NIF + actividad + obligaciones).</li>
+  <li>Adjuntar contrato SC y documentos de identidad.</li>
+  <li>Presentar y conservar justificante.</li>
+  <li>Recibir y archivar la asignación del NIF provisional.</li>
+  <li><strong>No iniciar cobros</strong> hasta tener NIF (salvo Escenario B documentado).</li>
+</ol>
+
+<h3 id="s6-2">Fase 2 — Cuenta bancaria</h3>
+<ol>
+  <li>Solicitar cuenta a nombre de la SC con NIF provisional.</li>
+  <li>Si el banco exige NIF definitivo: documentar alternativa (espera, o cuenta puente con mandato).</li>
+  <li>Obtener certificado de titularidad IBAN (PayPal lo pedirá a menudo).</li>
+</ol>
+
+<h3 id="s6-3">Fase 3 — Alta y verificación PayPal Business</h3>
+<ol>
+  <li>PayPal España → Crear cuenta → Business.</li>
+  <li>Introducir nombre legal exacto + NIF provisional + actividad + representante.</li>
+  <li>Vincular IBAN.</li>
+  <li>Completar verificación subiendo PDF claros.</li>
+  <li>Configurar correo, usuarios, divisa EUR y política de retiros.</li>
+  <li>Probar un cobro controlado de bajo importe y documentarlo.</li>
+</ol>
+
+<h3 id="s6-4">Fase 4 — Operativa con NIF provisional</h3>
+<ol>
+  <li>Cobrar solo por la PayPal Business de la SC.</li>
+  <li>Emitir factura o recibo según naturaleza del ingreso.</li>
+  <li>Exportar CSV de actividad (mínimo mensual).</li>
+  <li>Conciliar PayPal ↔ banco ↔ libro de ingresos.</li>
+  <li>Registrar comisiones PayPal como gasto.</li>
+  <li>No mezclar gastos personales.</li>
+</ol>
+
+<h3 id="s6-5">Fase 5 — Migración a NIF definitivo</h3>
+<ol>
+  <li>Aportar documentación pendiente a AEAT.</li>
+  <li>Presentar 036 de modificación (casilla 120).</li>
+  <li>Obtener confirmación de NIF definitivo.</li>
+  <li>Actualizar PayPal, banco, facturas y pie legal de la web.</li>
+  <li>Archivar el expediente completo del periodo provisional.</li>
+  <li>Si hubo puente: liquidación final y saldo a cero en cuenta personal.</li>
+</ol>
+
+<!-- 7 -->
+<h2 id="s7">7. Cómo justificar la cuenta y los ingresos temporales</h2>
+<p>La justificación tiene tres capas: PayPal, Hacienda y terceros (socios/donantes/clientes). Sin las tres, el “temporal” se convierte en un agujero de riesgo.</p>
+
+<h3 id="s7-1">7.1. Frente a PayPal</h3>
+<p><strong>Expediente recomendado:</strong></p>
+<ol>
+  <li>Contrato SC firmado.</li>
+  <li>036 + NIF provisional (y luego definitivo).</li>
+  <li>DNI/NIE del representante y facultades.</li>
+  <li>Extracto/certificado bancario.</li>
+  <li>Descripción de actividad + URL del proyecto.</li>
+  <li>Si hubo puente: mandato + liquidaciones + transferencias de regularización.</li>
+</ol>
+<p>Regla de oro: <strong>mismo nombre legal</strong> en contrato, AEAT, banco, PayPal y facturas.</p>
+
+<h3 id="s7-2">7.2. Frente a Hacienda</h3>
+<h4>A) Cobra la SC con su NIF (Escenario A)</h4>
+<ul>
+  <li>El ingreso es de la entidad (en atribución de rentas, caso típico).</li>
+  <li>Se registra en libros de la SC.</li>
+  <li>Al cierre se atribuye a cada socio según pacto fehaciente (si no consta, reglas legales / partes iguales según caso).</li>
+  <li>Cada socio declara su parte en IRPF (si la calificación es actividad económica, como rendimientos de actividad).</li>
+  <li>El IVA, si procede, lo liquida la entidad (modelos 303/390 u otros según alta).</li>
+</ul>
+<h4>B) Cobra un socio por cuenta de la SC (Escenario B)</h4>
+<p>Hay que elegir una calificación <strong>antes</strong> del primer cobro y aplicarla de forma uniforme (ver §7.6). Improvisar después es una de las principales fuentes de problemas.</p>
+<h4>C) Qué no justifica un ingreso</h4>
+<ul>
+  <li>Concepto bancario genérico sin factura/recibo.</li>
+  <li>Capturas de móvil sueltas sin CSV completo.</li>
+  <li>Mezcla de gastos personales con saldos del proyecto.</li>
+  <li>Decir “era temporal” sin fechas, importes y acuerdos.</li>
+</ul>
+
+<h3 id="s7-3">7.3. Frente a socios, donantes y clientes</h3>
+<ul>
+  <li>Acta o cláusula autorizando PayPal y al representante.</li>
+  <li>Política clara de qué se acepta (venta, preventa, donativo).</li>
+  <li>Informes periódicos de saldos.</li>
+  <li>En la web: nombre legal + NIF cuando exista + destino de los fondos.</li>
+  <li>Si hubo puente: liquidación firmada del socio cobrador.</li>
+</ul>
+
+<h3 id="s7-4">7.4. Expediente mínimo por ingreso</h3>
+<p>Para cada cobro relevante archivar:</p>
+<ol>
+  <li>ID de transacción PayPal.</li>
+  <li>Fecha, bruto, comisión, neto.</li>
+  <li>Identidad del pagador (si consta) y concepto.</li>
+  <li>Factura, recibo o certificado de donación.</li>
+  <li>Vínculo con el proyecto (pedido, campaña, hito).</li>
+  <li>Asiento / línea en libro de ingresos.</li>
+  <li>Transferencia a banco de la SC, si aplica.</li>
+</ol>
+
+<h3 id="s7-5">7.5. Contabilidad, conciliación y ejemplos</h3>
+<p>Abrir como mínimo: libro de ingresos PayPal, libro de comisiones/gastos, cuenta de cobros pendientes de regularizar (si hay puente) y registro de atribución a socios.</p>
+<div class="code">Suma bruta cobros PayPal del mes
+− Comisiones PayPal
+− Reembolsos / chargebacks
+= Neto teórico
+± Ajustes (divisas, retenciones)
+= Neto transferido a banco
+= Saldo contable de la SC</div>
+<p>Cualquier diferencia debe tener explicación escrita.</p>
+<p><strong>Ejemplo:</strong> cobro de 100,00 €; comisión 3,49 €; neto 96,51 €. Se registra ingreso 100,00 €, gasto comisión 3,49 €, cobro PayPal 96,51 €. Si luego se transfiere al banco, el asiento refleja la entrada en IBAN de la SC.</p>
+
+<h3 id="s7-6">7.6. Calificaciones fiscales del puente</h3>
+<table>
+  <thead><tr><th>Calificación</th><th>Qué implica</th><th>Cuándo puede encajar</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Ingreso del socio + aportación posterior a la SC</td>
+      <td>El socio declara; luego aporta el neto a la SC</td>
+      <td>Si el socio ya puede facturar legalmente</td>
+    </tr>
+    <tr>
+      <td>Mandato / mediación documentada</td>
+      <td>El socio cobra por cuenta de la SC</td>
+      <td>Solo con mandato escrito y trazabilidad total</td>
+    </tr>
+    <tr>
+      <td>Préstamo del socio a la SC</td>
+      <td>El socio declara/ingresa y presta el dinero a la SC</td>
+      <td>Con contrato de préstamo y condiciones claras</td>
+    </tr>
+    <tr>
+      <td>Donación socio ↔ SC</td>
+      <td>Puede tener implicaciones fiscales propias</td>
+      <td>Generalmente indeseable como parche</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 8 -->
+<h2 id="s8">8. Obligaciones fiscales de la SC y de los socios</h2>
+<p>Además de PayPal, la operativa temporal debe encajar en las obligaciones ordinarias. Orientativamente, en atribución de rentas:</p>
+<table>
+  <thead><tr><th>Obligación</th><th>Quién</th><th>Notas</th></tr></thead>
+  <tbody>
+    <tr><td>Modelo 036 alta/modificación/baja</td><td>SC</td><td>Incluye NIF provisional/definitivo</td></tr>
+    <tr><td>Facturación y libros registro</td><td>SC</td><td>Según actividad y régimen</td></tr>
+    <tr><td>IVA 303 / 390</td><td>SC</td><td>Si la actividad está sujeta; hay excepciones</td></tr>
+    <tr><td>Modelo 184</td><td>SC</td><td>Informativa anual si hay actividad económica o rentas &gt; 3.000 €/año (plazo típico: enero)</td></tr>
+    <tr><td>Comunicación a socios de rentas atribuidas</td><td>SC</td><td>Tras el 184, en el plazo legal</td></tr>
+    <tr><td>Modelo 130 (pagos fraccionados IRPF)</td><td>Socios con actividad atribuida</td><td>Según régimen y excepciones</td></tr>
+    <tr><td>Retenciones 111/115/etc.</td><td>SC</td><td>Si paga nóminas, profesionales, alquileres…</td></tr>
+    <tr><td>Modelo 347 / 349</td><td>SC</td><td>Si se superan umbrales u operaciones intracomunitarias</td></tr>
+    <tr><td>Alta en Seguridad Social / autónomos</td><td>Socios, según caso</td><td>Depende de dedicación y normativa aplicable; consultar asesor laboral</td></tr>
+  </tbody>
+</table>
+<p>PayPal <strong>no sustituye</strong> ninguna de estas obligaciones. El CSV de PayPal es un soporte de prueba, no una declaración tributaria.</p>
+
+<!-- 9 -->
+<h2 id="s9">9. Caso de recaudación de fondos / crowdfunding interno</h2>
+<p>Si la SC usa una landing (p. ej. Proyecto Icarus) para recaudar:</p>
+<ol>
+  <li>Indicar claramente el destinatario: nombre legal + NIF cuando exista.</li>
+  <li>Distinguir <strong>donativo</strong> (sin contraprestación) de <strong>preventa/recompensa</strong> (suele ser entrega de bien/servicio → factura e IVA si procede).</li>
+  <li>No presentar una PayPal personal anónima como “cuenta de la empresa”.</li>
+  <li>Conservar capturas de la campaña y condiciones publicadas.</li>
+  <li>No asumir que “donativo” = automáticamente exento de toda obligación.</li>
+</ol>
+
+<!-- 10 -->
+<h2 id="s10">10. Plantillas y modelos listos para adaptar</h2>
+
+<h3 id="s10-1">10.1. Mandato de cobro temporal</h3>
+<div class="template">ACUERDO DE COBRO TEMPORAL POR CUENTA DE LA SOCIEDAD CIVIL
+
+Los socios de la Sociedad Civil “[NOMBRE LEGAL]”, en constitución/alta censal,
+autorizan a [NOMBRE DEL SOCIO], DNI/NIE [……], a recibir cobros a través de su
+cuenta PayPal [email/ID] exclusivamente por cuenta y en interés de la SC,
+desde [FECHA INICIO] hasta la fecha en que la SC disponga de NIF y cuenta
+PayPal Business propia.
+
+El socio cobrador se obliga a:
+1) no disponer de los fondos para uso personal;
+2) llevar relación diaria de cobros, comisiones y netos;
+3) transferir el neto a la cuenta de la SC en el plazo máximo de [X] días
+   desde que exista IBAN de la SC;
+4) entregar CSV PayPal y justificantes;
+5) firmar liquidación final.
+
+La calificación fiscal de estos cobros será la determinada por el asesor de
+la SC, de forma coherente con el alta censal y las facturas emitidas.
+
+Lugar y fecha: ______________________
+Firmas de todos los socios:</div>
+
+<h3 id="s10-2">10.2. Acta de autorización de cuentas</h3>
+<div class="template">ACTA / ACUERDO DE SOCIOS — APERTURA DE CUENTAS
+
+Reunidos los socios de la SC “[NOMBRE]”, acuerdan:
+1) Solicitar NIF ante la AEAT mediante modelo 036.
+2) Abrir cuenta bancaria a nombre de la SC.
+3) Abrir cuenta PayPal Business a nombre de la SC.
+4) Designar como representante operativo a [NOMBRE], con facultades para
+   verificación KYC, retiros y conciliación.
+5) Prohibir el uso de cuentas personales para cobros ordinarios de la SC,
+   salvo mandato temporal expreso y por escrito.
+
+Fecha / Firmas:</div>
+
+<h3 id="s10-3">10.3. Liquidación del socio cobrador</h3>
+<div class="template">LIQUIDACIÓN DE COBROS TEMPORALES
+
+Socio cobrador: ____________  Periodo: __/__/____ a __/__/____
+Total bruto cobrado en PayPal: _________ €
+Total comisiones: _________ €
+Total reembolsos: _________ €
+Neto a entregar a la SC: _________ €
+Transferencias realizadas (fechas/importes/IBAN): ________________
+Documentos anexos: CSV + capturas + facturas/recibos
+
+El socio declara haber entregado la totalidad del neto y no conservar saldo
+del proyecto. La SC confirma la recepción.
+
+Firmas socio cobrador y resto de socios:</div>
+
+<h3 id="s10-4">10.4. Libro auxiliar de ingresos PayPal</h3>
+<div class="template">Fecha | ID PayPal | Pagador | Concepto | Tipo (venta/donativo/otro)
+| Bruto | Comisión | Neto | Factura/Recibo nº | Banco (sí/no) | Notas</div>
+
+<!-- 11 -->
+<h2 id="s11">11. Cronograma tipo y checklist</h2>
+<table>
+  <thead><tr><th>Momento</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td>Día 0</td><td>Firmar contrato SC + acta de cuentas</td></tr>
+    <tr><td>Día 0–2</td><td>Presentar modelo 036</td></tr>
+    <tr><td>Hasta ~10 días hábiles</td><td>Recibir NIF provisional</td></tr>
+    <tr><td>Mismo día / siguientes</td><td>Banco + PayPal Business + verificación</td></tr>
+    <tr><td>Durante provisional</td><td>Cobrar, facturar, conciliar, archivar</td></tr>
+    <tr><td>Al completar docs</td><td>036 casilla 120 → NIF definitivo → actualizar todo</td></tr>
+  </tbody>
+</table>
+
+<div class="box">
+  <strong>Checklist antes del primer cobro</strong>
+  <ul class="checklist">
+    <li>☐ Contrato SC firmado</li>
+    <li>☐ Representante designado por escrito</li>
+    <li>☐ 036 presentado</li>
+    <li>☐ NIF provisional recibido</li>
+    <li>☐ Escenario A o B documentado</li>
+    <li>☐ Banco o circuito de tesorería definido</li>
+    <li>☐ PayPal Business con nombre = nombre legal</li>
+    <li>☐ KYC iniciado/completado</li>
+    <li>☐ Plantilla de factura/recibo lista</li>
+    <li>☐ Carpeta de expediente creada</li>
+  </ul>
+</div>
+
+<!-- 12 -->
+<h2 id="s12">12. Preguntas frecuentes</h2>
+<p><strong>¿Puedo poner el NIF de un socio en la PayPal “de la empresa”?</strong><br/>
+No, si la cuenta se presenta como de la SC. El NIF debe ser el de la entidad titular.</p>
+<p><strong>¿El NIF provisional caduca solo?</strong><br/>
+No como un carné con fecha, pero puede <strong>revocarse</strong> si no se completa el expediente.</p>
+<p><strong>¿Hacienda ve PayPal?</strong><br/>
+Los prestadores de pago tienen obligaciones de información y, en comprobaciones, se pueden requerir extractos. Trabaje como si todo fuera visible.</p>
+<p><strong>¿Puedo abrir PayPal Business el mismo día del 036?</strong><br/>
+Puede intentarlo, pero sin NIF aún no tendrá el dato fiscal correcto. Lo sensato es esperar la asignación.</p>
+<p><strong>¿Qué hago si ya cobré en una cuenta personal?</strong><br/>
+Parar cobros nuevos; inventariar; firmar regularización; transferir neto a la SC cuando exista; declarar según calificación; abrir ya la PayPal Business de la SC.</p>
+<p><strong>¿PayPal retiene impuestos españoles automáticamente?</strong><br/>
+No sustituye sus modelos tributarios. Puede aplicar limitaciones/retenciones propias en ciertos supuestos de falta de datos; eso no elimina la obligación de declarar.</p>
+
+<!-- 13 -->
+<h2 id="s13">13. Mapa de decisión</h2>
+<pre>¿Existe contrato de SC firmado?
+ ├─ No → Firmarlo antes de cualquier cobro
+ └─ Sí
+     ¿Hay NIF (provisional o definitivo)?
+      ├─ No → Presentar 036; NO cobrar (o solo Escenario B documentado)
+      └─ Sí
+          ¿PayPal Business a nombre de la SC verificada?
+           ├─ No → Crearla con NIF + docs AEAT/banco
+           └─ Sí → Cobrar, facturar, conciliar, archivar
+                    ¿NIF aún provisional?
+                     ├─ Sí → Completar docs y pedir definitivo (036 casilla 120)
+                     └─ No → Mantener expediente y obligaciones periódicas</pre>
+
+<!-- 14 -->
+<h2 id="s14">14. Problemas legales y financieros que puede ocasionar</h2>
+<p>Operar con PayPal “temporal” sin NIF definitivo —o sin NIF provisional y sin documentación— puede generar daños legales, fiscales, contractuales y de tesorería que afecten a la SC y al patrimonio personal de los socios.</p>
+
+<h3 id="s14-1">14.1. Problemas legales y regulatorios</h3>
+<ul>
+  <li><strong>Incumplimiento censal:</strong> cobrar sin 036/NIF puede derivar en requerimientos, regularizaciones y sanciones formales.</li>
+  <li><strong>Condiciones de uso de PayPal:</strong> uso comercial en cuenta personal u ocultación de titularidad real → limitaciones, retención de saldos, cierre.</li>
+  <li><strong>Responsabilidad personal de socios:</strong> deudas, chargebacks o reclamaciones pueden llegar al patrimonio particular.</li>
+  <li><strong>Falta de transparencia frente a clientes/donantes:</strong> reclamaciones, reembolsos, daño reputacional.</li>
+  <li><strong>AML / origen de fondos:</strong> cobros a nombre de una persona y traspasos a otra sin soporte → bloqueos bancarios/PayPal.</li>
+  <li><strong>Protección de datos:</strong> mezclar datos de clientes en la PayPal personal de un socio (RGPD).</li>
+</ul>
+
+<h3 id="s14-2">14.2. Problemas fiscales</h3>
+<ul>
+  <li>Atribución incorrecta de rentas al socio o a la SC.</li>
+  <li>IVA no repercutido o mal calificado (donativo vs venta/preventa).</li>
+  <li>Sanciones por no facturar, no llevar registros o presentar fuera de plazo.</li>
+  <li>Revocación del NIF provisional a mitad de campaña.</li>
+  <li>Declaraciones incoherentes entre socios (uno declara de más, otro de menos).</li>
+</ul>
+
+<h3 id="s14-3">14.3. Problemas financieros y de tesorería</h3>
+<ul>
+  <li>Fondos retenidos o inaccesibles por verificación/chargebacks.</li>
+  <li>El socio titular asume el golpe de devoluciones si el saldo ya se gastó.</li>
+  <li>Fugas por comisiones y divisas sin conciliación.</li>
+  <li>Mezcla de patrimonios (commingling): embargos o deudas personales del socio pueden afectar saldos del proyecto.</li>
+  <li>Dificultad posterior para abrir banco, otras pasarelas o acceder a ayudas.</li>
+  <li>Dependencia de una sola persona con acceso a la cuenta.</li>
+</ul>
+
+<h3 id="s14-4">14.4. Problemas entre socios y frente a terceros</h3>
+<ul>
+  <li>Disputas sobre a quién pertenece el saldo y quién paga impuestos/comisiones.</li>
+  <li>Salida, enfermedad o bloqueo del socio cobrador dejando fondos fuera de alcance.</li>
+  <li>Donantes/clientes exigiendo reembolso o prueba de destino de fondos.</li>
+  <li>Pérdida de contratos que exigen factura con NIF.</li>
+</ul>
+
+<h3 id="s14-5">14.5. Escenarios de daño acumulado</h3>
+<table>
+  <thead><tr><th>Situación</th><th>Efecto legal</th><th>Efecto financiero</th></tr></thead>
+  <tbody>
+    <tr><td>Cobros meses sin 036 ni facturas</td><td>Requerimiento AEAT + posibles sanciones</td><td>Regularización con intereses; caja improvisada</td></tr>
+    <tr><td>PayPal personal sin mandato</td><td>Condiciones PayPal + conflicto societario</td><td>Saldo retenido o disputa de titularidad</td></tr>
+    <tr><td>NIF provisional revocado en campaña</td><td>Facturas cuestionadas</td><td>Campaña frenada; reembolsos</td></tr>
+    <tr><td>Donativos mal calificados</td><td>IVA/IRPF incorrectos</td><td>Cuotas + recargos</td></tr>
+    <tr><td>Embargo de la cuenta personal del socio</td><td>Terceros ajenos entran en la caja</td><td>Fondos del proyecto afectados</td></tr>
+    <tr><td>Cierre PayPal por KYC fallido</td><td>Pérdida del canal de cobro</td><td>Importe atrapado + coste de migrar</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s14-6">14.6. Señales de alarma</h3>
+<p>Detener cobros nuevos y regularizar si:</p>
+<ol>
+  <li>PayPal pide documentación y no hay NIF ni contrato SC.</li>
+  <li>El banco pregunta el origen de transferencias reiteradas.</li>
+  <li>Un socio usó fondos del proyecto para gastos personales “a devolver”.</li>
+  <li>Piden factura y no existe NIF.</li>
+  <li>Los socios no coinciden en cuánto hay en caja.</li>
+  <li>Llega requerimiento de AEAT, PayPal o banco.</li>
+  <li>El NIF provisional está fuera de plazo de documentación.</li>
+</ol>
+
+<h3 id="s14-7">14.7. Prevenir vs remediar</h3>
+<table>
+  <thead><tr><th>Enfoque</th><th>Coste típico</th><th>Resultado</th></tr></thead>
+  <tbody>
+    <tr><td>Prevenir: 036 + NIF provisional + PayPal Business + mandato</td><td>Tiempo + asesoría inicial</td><td>Trazabilidad y menos bloqueos</td></tr>
+    <tr><td>Remediar: inspecciones, bloqueos, sanciones, abogados, reembolsos</td><td>Muy superior + daño reputacional</td><td>Recuperación incierta</td></tr>
+  </tbody>
+</table>
+<div class="bad">
+  Una cuenta PayPal temporal mal planteada puede bloquear la caja, personalizar deudas, romper la confianza entre socios y comprometer la continuidad del proyecto.
+</div>
+
+<!-- 15 -->
+<h2 id="s15">15. Conclusiones finales</h2>
+<ol>
+  <li>No existe una cuenta PayPal temporal oficial sustitutiva del NIF/CIF.</li>
+  <li>El instrumento temporal correcto es el <strong>NIF provisional</strong> (modelo 036).</li>
+  <li>Con ese NIF, la vía limpia es <strong>PayPal Business a nombre de la SC</strong>.</li>
+  <li>Cobrar antes del NIF solo como excepción documentada, breve y regularizada.</li>
+  <li>Justificar ingresos temporales = titularidad clara + facturas/recibos + CSV + conciliación + acuerdos entre socios + declaraciones coherentes.</li>
+  <li>Los problemas legales y financieros de improvisar son mayores que el coste de esperar unos días al NIF provisional.</li>
+</ol>
+
+<!-- 16 -->
+<h2 id="s16">16. Referencias</h2>
+<ul>
+  <li>AEAT — Asignación de NIF a personas jurídicas y entidades sin personalidad jurídica (procedimiento G324): modelo 036, NIF provisional/definitivo.</li>
+  <li>AEAT — Guía del modelo 036, casilla 120 (NIF definitivo).</li>
+  <li>AEAT — Régimen de atribución de rentas; obligaciones de la entidad (incl. modelo 184).</li>
+  <li>PayPal España — Alta cuenta Business; Condiciones de uso; ayuda de documentos para confirmar entidad comercial.</li>
+</ul>
+
+<div class="footer-doc">
+  Documento generado para el repositorio del Proyecto Icarus · Versión 2.0 · Noviembre 2026<br/>
+  Revisar periódicamente frente a cambios de PayPal y de la AEAT.<br/>
+  <a href="#portada">Volver a la portada</a> · <a href="#indice">Volver al índice</a>
+</div>
+
+</main>
+</div>
+</body>
+</html>
