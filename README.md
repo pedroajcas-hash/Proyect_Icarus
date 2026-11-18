@@ -5,7 +5,8 @@ Este txt servira para explciar brevemente el proyecto Icarus y sus avances, adem
 
 ## Documentación
 
-- **[Cuenta PayPal temporal en Sociedad Civil (documento completo)](docs/Cuenta-PayPal-Temporal-Sociedad-Civil.html)** — portada, índice con hipervínculos, procedimiento NIF provisional, justificación de ingresos y riesgos legales/financieros.
+- **[Cuenta PayPal temporal en Sociedad Civil (PDF)](docs/Cuenta-PayPal-Temporal-Sociedad-Civil.pdf)** — documento completo.
+- [Misma guía en HTML](docs/Cuenta-PayPal-Temporal-Sociedad-Civil.html) — portada e índice con hipervínculos.
 
 PROYECTO_ICARUS
 

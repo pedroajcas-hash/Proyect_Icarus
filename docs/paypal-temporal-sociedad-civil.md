@@ -1,8 +1,10 @@
 # Cuenta PayPal temporal en una Sociedad Civil
 
-> **Documento completo (portada + índice con hipervínculos + todo el contenido):**  
-> **[`Cuenta-PayPal-Temporal-Sociedad-Civil.html`](./Cuenta-PayPal-Temporal-Sociedad-Civil.html)**  
-> Ábrelo en el navegador para navegar por el índice y, si lo deseas, imprimirlo o exportarlo a PDF (`Ctrl+P` / Imprimir → Guardar como PDF).
+> **Documento completo en PDF:**  
+> **[`Cuenta-PayPal-Temporal-Sociedad-Civil.pdf`](./Cuenta-PayPal-Temporal-Sociedad-Civil.pdf)**  
+>  
+> Versión HTML (portada + índice con hipervínculos):  
+> [`Cuenta-PayPal-Temporal-Sociedad-Civil.html`](./Cuenta-PayPal-Temporal-Sociedad-Civil.html)
 
 ---
 
